@@ -1,0 +1,83 @@
+{
+  "targets": [
+    {
+      "id": "left-main",
+      "action": "zone",
+      "monitor": 1,
+      "layout": "@applied",
+      "zone": 1
+    },
+    {
+      "id": "center-main",
+      "action": "zone",
+      "monitor": 1,
+      "layout": "@applied",
+      "zone": 2
+    },
+    {
+      "id": "right-main",
+      "action": "zone",
+      "monitor": 1,
+      "layout": "@applied",
+      "zone": 3
+    },
+    {
+      "id": "quad-top-left",
+      "action": "zone",
+      "monitor": 2,
+      "layout": "@applied",
+      "zone": 1
+    }
+  ],
+  "presets": [
+    {
+      "hotkey": "Alt+1",
+      "action": "zone",
+      "monitor": "active",
+      "layout": "@applied",
+      "zone": 1
+    },
+    {
+      "hotkey": "Alt+2",
+      "action": "zone",
+      "monitor": "active",
+      "layout": "@applied",
+      "zone": 2
+    },
+    {
+      "hotkey": "Alt+3",
+      "action": "zone",
+      "monitor": "active",
+      "layout": "@applied",
+      "zone": 3
+    },
+    {
+      "hotkey": "Alt+Shift+Right",
+      "action": "monitor",
+      "monitor": "next",
+      "placement": "preserve-relative"
+    },
+    {
+      "hotkey": "Alt+Shift+Left",
+      "action": "monitor",
+      "monitor": "previous",
+      "placement": "preserve-relative"
+    },
+    {
+      "hotkey": "Ctrl+Alt+1",
+      "target": "left-main"
+    },
+    {
+      "hotkey": "Ctrl+Alt+2",
+      "target": "center-main"
+    },
+    {
+      "hotkey": "Ctrl+Alt+3",
+      "target": "right-main"
+    },
+    {
+      "hotkey": "Ctrl+Alt+Q",
+      "target": "quad-top-left"
+    }
+  ]
+}

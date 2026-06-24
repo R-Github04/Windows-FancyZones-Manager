@@ -1,5 +1,7 @@
 # FancyZones Hotkey Bridge
 
+THIS PROJECT IS NOT OFFICIAL WINDOWS APPLICATION
+
 This project adds monitor-aware preset hotkeys such as `Alt+1`, `Alt+2`, `Ctrl+Alt+1`, and `Alt+Shift+Right` on top of Microsoft PowerToys FancyZones.
 
 Instead of asking FancyZones itself to move the active window, the script reads your FancyZones layout files and moves the foreground window to the matching zone rectangle.

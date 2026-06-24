@@ -1,36 +1,93 @@
 # FancyZones Hotkey Bridge
 
-This project adds monitor-aware preset hotkeys such as `Alt+1`, `Alt+2`, `Ctrl+Alt+1`, and `Alt+Shift+Right` on top of Microsoft PowerToys FancyZones.
+Monitor-aware hotkeys for Microsoft PowerToys FancyZones on Windows.
 
-Instead of asking FancyZones itself to move the active window, the script reads your FancyZones layout files and moves the foreground window to the matching zone rectangle.
+Use familiar shortcuts like `Alt+1`, `Alt+2`, `Ctrl+Alt+1`, and `Alt+Shift+Right` to move the active window to the right zone on the right monitor, even when each monitor uses a different FancyZones layout.
+
+> Best for: Windows power users, developers, traders, and AI-heavy multitaskers who work across 2+ monitors and already rely on FancyZones.
+
+## Why this exists
+
+FancyZones is great for layouts, but many people still want direct hotkeys for:
+
+- send this window to zone 1 on the active monitor
+- jump to the next monitor while keeping relative placement
+- send a window to a named destination such as "main monitor center"
+
+This bridge reads your FancyZones custom layout files, resolves the target zone rectangle, and moves the foreground window there.
 
 ## What it does
 
-- Registers global hotkeys through Windows.
+- Registers global Windows hotkeys.
 - Reads FancyZones layouts from `%LocalAppData%\Microsoft\PowerToys\FancyZones`.
-- Supports different FancyZones layouts on different monitors.
+- Supports different layouts on different monitors.
 - Supports FancyZones custom `grid` and `canvas` layouts.
-- Supports `@applied` so a hotkey can follow the custom layout currently applied to the target monitor.
-- Supports monitor-aware actions such as:
-  - move to zone 1/2/3 of the active monitor
-  - move to next/previous monitor
+- Supports `@applied` so a preset can follow the custom layout currently applied to a monitor.
+- Supports monitor-aware actions:
+  - move to zone `1`, `2`, `3`, and so on
+  - move to next or previous monitor
   - move to a specific monitor number
-  - map any hotkey to a named global target
+  - map any hotkey to a reusable named target
 
-## Files
+## Recommended GitHub page layout
 
-- `FancyZonesHotkeys.ps1`: main script.
-- `presets.json`: hotkey and target definitions.
-- `Run-FancyZonesHotkeys.bat`: simple launcher.
+For the best first impression on GitHub, add these two assets to a `media/` folder:
 
-## Config model
+- `media/demo.gif`: a 15-30 second GIF showing `Alt+1`, `Alt+2`, and monitor switching
+- `media/before-after.png`: one image comparing stock FancyZones behavior vs this bridge
 
-The config has two sections:
+When you have them, place this block right under the intro:
+
+```md
+![Demo](media/demo.gif)
+
+![Before and after](media/before-after.png)
+```
+
+The GIF should show one clear story:
+
+1. Focus a window on monitor A.
+2. Press `Alt+1`, `Alt+2`, `Alt+3`.
+3. Press `Alt+Shift+Right`.
+4. Show that the hotkeys follow each monitor's applied FancyZones layout.
+
+## Install in 3 steps
+
+1. Install Microsoft PowerToys and set up FancyZones custom layouts for your monitors.
+2. Download the latest release ZIP, extract it anywhere, and edit `presets.json`.
+3. Run `Run-FancyZonesHotkeys.bat`, then focus a window and press your hotkeys.
+
+If you want to move elevated apps such as Task Manager or an admin terminal, run this bridge as administrator too.
+
+## Release ZIP format
+
+The simplest distribution format for this project is a portable ZIP with these files at the top level:
+
+- `FancyZonesHotkeys.ps1`
+- `Run-FancyZonesHotkeys.bat`
+- `presets.json`
+- `README.md`
+- `QUICKSTART.txt`
+
+Recommended asset name:
+
+```text
+FancyZonesHotkeyBridge-v0.1.0.zip
+```
+
+That gives users a very clear path:
+
+1. Download ZIP
+2. Extract ZIP
+3. Edit `presets.json`
+4. Double-click `Run-FancyZonesHotkeys.bat`
+
+## Example config
+
+`presets.json` has two sections:
 
 - `targets`: reusable named destinations
 - `presets`: hotkeys that either define an action directly or point to a target
-
-Example:
 
 ```json
 {
@@ -41,6 +98,13 @@ Example:
       "monitor": 1,
       "layout": "@applied",
       "zone": 1
+    },
+    {
+      "id": "center-main",
+      "action": "zone",
+      "monitor": 1,
+      "layout": "@applied",
+      "zone": 2
     },
     {
       "id": "quad-top-left",
@@ -59,6 +123,20 @@ Example:
       "zone": 1
     },
     {
+      "hotkey": "Alt+2",
+      "action": "zone",
+      "monitor": "active",
+      "layout": "@applied",
+      "zone": 2
+    },
+    {
+      "hotkey": "Alt+3",
+      "action": "zone",
+      "monitor": "active",
+      "layout": "@applied",
+      "zone": 3
+    },
+    {
       "hotkey": "Alt+Shift+Right",
       "action": "monitor",
       "monitor": "next",
@@ -72,22 +150,20 @@ Example:
 }
 ```
 
-## Zone action
+## Actions
+
+### Zone action
 
 Use this when you want the active window sent to a FancyZones zone.
-
-Fields:
 
 - `action`: `zone`
 - `monitor`: which monitor should receive the window
 - `layout`: `@applied`, a FancyZones layout name, or a FancyZones layout UUID
 - `zone`: 1-based zone number inside that layout
 
-## Monitor action
+### Monitor action
 
 Use this when you only want to move the active window to another monitor.
-
-Fields:
 
 - `action`: `monitor`
 - `monitor`: which monitor should receive the window
@@ -95,13 +171,13 @@ Fields:
 
 Supported `placement` values:
 
-- `preserve-relative`: scale the current window position and size relative to the target monitor
-- `preserve-size`: keep the current size and move with the same offset from the work area
-- `center`: keep the size if possible and center it
-- `maximize`: fill the target work area
-- `top-left`: keep the size and move to the top-left of the target work area
+- `preserve-relative`
+- `preserve-size`
+- `center`
+- `maximize`
+- `top-left`
 
-## Monitor selector
+### Monitor selector
 
 `monitor` can be:
 
@@ -112,32 +188,27 @@ Supported `placement` values:
 - a display number such as `1`, `2`, `3`
 - a device name such as `\\.\DISPLAY2`
 
-## Usage
+## Useful commands
 
-1. Keep PowerToys FancyZones installed and configured.
-2. Edit `presets.json` to match your monitor setup and preferred hotkeys.
-3. Run `Run-FancyZonesHotkeys.bat`.
-4. Focus a window and press your hotkey.
-
-To inspect the layouts currently available from FancyZones:
+Inspect the layouts currently available from FancyZones:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\FancyZonesHotkeys.ps1 -ListLayouts
 ```
 
-To inspect the currently detected monitors and their applied custom layouts:
+Inspect the currently detected monitors and their applied custom layouts:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\FancyZonesHotkeys.ps1 -ListMonitors
 ```
 
-To validate the preset file without starting the hotkey loop:
+Validate the config without starting the hotkey loop:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\FancyZonesHotkeys.ps1 -ValidateConfig
 ```
 
-To preview where one preset would send the currently focused window:
+Preview where one preset would send the currently focused window:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\FancyZonesHotkeys.ps1 -PreviewHotkey Alt+1
@@ -146,17 +217,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\FancyZonesHotkeys.ps1 -Pre
 ## Suggested workflow
 
 - Give each monitor its own FancyZones custom layout.
-- Use `Alt+1`, `Alt+2`, `Alt+3` for the active monitor's zone numbers.
+- Use `Alt+1`, `Alt+2`, `Alt+3` for zone numbers on the active monitor.
 - Use `Alt+Shift+Left` and `Alt+Shift+Right` to move between monitors.
 - Use `targets` for absolute destinations like "main monitor center" or "right monitor top-left square".
-
-## Elevated windows
-
-If you want to move elevated applications such as Task Manager or admin terminals, run this bridge as administrator too.
-
-This does not bypass Windows secure desktop restrictions, so UAC consent dialogs are still out of scope.
 
 ## Current limitations
 
 - `@applied` currently resolves only custom FancyZones layouts.
-- Built-in layouts such as `priority-grid` are not resolved yet because PowerToys stores only the type, not a ready-to-use rectangle list, in the same way as custom layouts.
+- Built-in FancyZones layouts such as `priority-grid` are not resolved yet because PowerToys does not expose ready-to-use zone rectangles for them in the same way.

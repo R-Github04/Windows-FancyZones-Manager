@@ -14,9 +14,11 @@ ArchitecturesInstallIn64BitMode=x64
 
 [Files]
 Source: "dist\Portable\FancyZonesHotkeys.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "dist\Portable\FancyZonesHotkeys.ps1"; DestDir: "{app}"; Flags: ignoreversion
 Source: "dist\Portable\presets.json"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "dist\Portable\Register-Startup.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "dist\Portable\Unregister-Startup.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "dist\Portable\QUICKSTART.txt"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 
 [Icons]
 Name: "{group}\FancyZonesHotkeys"; Filename: "{app}\FancyZonesHotkeys.exe"

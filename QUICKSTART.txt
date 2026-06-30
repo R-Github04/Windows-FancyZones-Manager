@@ -1,0 +1,19 @@
+# FancyZonesHotkeys Quick Start
+
+1. Install Microsoft PowerToys and configure FancyZones layouts.
+2. Edit `presets.json` to define your hotkeys and target zones/monitors.
+3. Run `FancyZonesHotkeys.exe` (or `Run-FancyZonesHotkeys.bat`).
+
+## Troubleshooting
+
+### Blue "Windows protected your PC" screen (SmartScreen)
+Since this utility is an open-source tool compiled locally without an expensive signing certificate, Windows SmartScreen may show a warning on first run.
+**Solution**: Click "More info" -> "Run anyway".
+
+### Program doesn't run at all or disappears (MOTW)
+Windows may block the script files inside the ZIP if downloaded from the internet.
+**Solution**: Before extracting the ZIP, right-click the `.zip` file -> Properties -> check "Unblock" at the bottom -> Apply. Then extract.
+
+### Startup Registration
+Run `Register-Startup.bat` to make the hotkeys launch automatically when Windows starts.
+Run `Unregister-Startup.bat` to remove it.

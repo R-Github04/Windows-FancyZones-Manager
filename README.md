@@ -53,11 +53,14 @@ The GIF should show one clear story:
 3. Press `Alt+Shift+Right`.
 4. Show that the hotkeys follow each monitor's applied FancyZones layout.
 
-## Install in 3 steps
+## Install in 4 steps
 
 1. Install Microsoft PowerToys and set up FancyZones custom layouts for your monitors.
-2. Download the latest release ZIP, extract it anywhere, and edit `presets.json`.
-3. Run `Run-FancyZonesHotkeys.bat`, then focus a window and press your hotkeys.
+2. Download the latest release ZIP. **Before extracting**, right-click the `.zip` file, select **Properties**, check **Unblock** at the bottom, and click Apply. (This prevents Windows from blocking the scripts inside).
+3. Extract the ZIP anywhere, and edit `presets.json` to configure your hotkeys.
+4. Run `FancyZonesHotkeys.exe` (or `Run-FancyZonesHotkeys.bat`), then focus a window and press your hotkeys.
+
+> **Note on Windows SmartScreen**: Because this utility is not digitally signed with an expensive certificate, Windows may show a blue "Windows protected your PC" screen on first run. Click **More info** and then **Run anyway**.
 
 If you want to move elevated apps such as Task Manager or an admin terminal, run this bridge as administrator too.
 

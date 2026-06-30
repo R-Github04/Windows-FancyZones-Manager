@@ -7,14 +7,6 @@ $portableDir = Join-Path $distDir "Portable"
 if (Test-Path $distDir) { Remove-Item -Path $distDir -Recurse -Force }
 New-Item -ItemType Directory -Path $portableDir | Out-Null
 
-Write-Host "Checking for ps2exe module..."
-if (-not (Get-Module -ListAvailable -Name ps2exe)) {
-    Write-Host "Installing ps2exe (setting up NuGet and trusting PSGallery)..."
-    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
-    Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted -ErrorAction SilentlyContinue
-    Install-Module -Name ps2exe -Scope CurrentUser -Force -AllowClobber
-}
-
 Write-Host "Checking for Inno Setup..."
 $isccPaths = @(
     "C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
@@ -32,10 +24,63 @@ if (-not $isccPath) {
     }
 }
 
-Write-Host "Compiling PowerShell script to EXE..."
-$ps1Path = Join-Path $ScriptRoot "FancyZonesHotkeys.ps1"
+$cscPath = "$env:windir\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+if (-not (Test-Path $cscPath)) {
+    $cscPath = "$env:windir\Microsoft.NET\Framework\v4.0.30319\csc.exe"
+}
+
+Write-Host "Compiling C# wrapper to EXE..."
+$csharpCode = @"
+using System;
+using System.Diagnostics;
+using System.IO;
+
+[assembly: System.Reflection.AssemblyTitle("FancyZonesHotkeys")]
+[assembly: System.Reflection.AssemblyProduct("FancyZonesHotkeys")]
+
+namespace FancyZonesHotkeysLauncher
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            bool createdNew;
+            using (System.Threading.Mutex mutex = new System.Threading.Mutex(true, "FancyZonesHotkeys_SingleInstance", out createdNew))
+            {
+                if (!createdNew)
+                {
+                    return;
+                }
+
+                string exeDir = AppDomain.CurrentDomain.BaseDirectory;
+                string scriptPath = Path.Combine(exeDir, "FancyZonesHotkeys.ps1");
+                
+                if (!File.Exists(scriptPath)) return;
+
+                ProcessStartInfo psi = new ProcessStartInfo("powershell.exe");
+                psi.Arguments = string.Format("-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"{0}\"", scriptPath);
+                psi.CreateNoWindow = true;
+                psi.UseShellExecute = false;
+                psi.WindowStyle = ProcessWindowStyle.Hidden;
+
+                Process p = Process.Start(psi);
+                p.WaitForExit();
+            }
+        }
+    }
+}
+"@
+
+$wrapperSrc = Join-Path $distDir "Wrapper.cs"
+Set-Content -Path $wrapperSrc -Value $csharpCode -Encoding UTF8
+
 $exePath = Join-Path $portableDir "FancyZonesHotkeys.exe"
-Invoke-ps2exe -inputFile $ps1Path -outputFile $exePath -noConsole -noOutput -noError
+& $cscPath /nologo /target:winexe /out:$exePath $wrapperSrc
+Remove-Item $wrapperSrc
+
+Write-Host "Copying PowerShell script to Portable directory..."
+$ps1Path = Join-Path $ScriptRoot "FancyZonesHotkeys.ps1"
+Copy-Item -Path $ps1Path -Destination $portableDir -Force
 
 Write-Host "Packaging Portable version..."
 if (Test-Path (Join-Path $ScriptRoot "presets.json")) {
@@ -43,6 +88,7 @@ if (Test-Path (Join-Path $ScriptRoot "presets.json")) {
 }
 Copy-Item -Path (Join-Path $ScriptRoot "Register-Startup.bat") -Destination $portableDir
 Copy-Item -Path (Join-Path $ScriptRoot "Unregister-Startup.bat") -Destination $portableDir
+Copy-Item -Path (Join-Path $ScriptRoot "QUICKSTART.txt") -Destination $portableDir -ErrorAction SilentlyContinue
 
 $zipPath = Join-Path $distDir "FancyZonesHotkeys_Portable.zip"
 Compress-Archive -Path "$portableDir\*" -DestinationPath $zipPath -Force

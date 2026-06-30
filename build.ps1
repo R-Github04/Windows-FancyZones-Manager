@@ -78,9 +78,11 @@ $exePath = Join-Path $portableDir "FancyZonesHotkeys.exe"
 & $cscPath /nologo /target:winexe /out:$exePath $wrapperSrc
 Remove-Item $wrapperSrc
 
-Write-Host "Copying PowerShell script to Portable directory..."
+Write-Host "Copying PowerShell script to Portable directory with UTF-8 BOM..."
 $ps1Path = Join-Path $ScriptRoot "FancyZonesHotkeys.ps1"
-Copy-Item -Path $ps1Path -Destination $portableDir -Force
+$destPath = Join-Path $portableDir "FancyZonesHotkeys.ps1"
+$utf8BOM = New-Object System.Text.UTF8Encoding $true
+[System.IO.File]::WriteAllText($destPath, (Get-Content $ps1Path -Raw), $utf8BOM)
 
 Write-Host "Packaging Portable version..."
 if (Test-Path (Join-Path $ScriptRoot "presets.yaml")) {

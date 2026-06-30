@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$ConfigPath,
     [switch]$ListLayouts,
@@ -1177,9 +1177,9 @@ function Reload-Settings {
         $script:targetMap = $newTargetMap
         
         Register-AllHotkeys
-        $notifyIcon.ShowBalloonTip(3000, "FancyZonesHotkeys", "설정이 성공적으로 갱신되었습니다.", [System.Windows.Forms.ToolTipIcon]::Info)
+        $notifyIcon.ShowBalloonTip(3000, "FancyZonesHotkeys", "?ㅼ젙???깃났?곸쑝濡?媛깆떊?섏뿀?듬땲??", [System.Windows.Forms.ToolTipIcon]::Info)
     } catch {
-        $notifyIcon.ShowBalloonTip(5000, "FancyZonesHotkeys 오류", "설정 갱신 실패: $_", [System.Windows.Forms.ToolTipIcon]::Error)
+        $notifyIcon.ShowBalloonTip(5000, "FancyZonesHotkeys ?ㅻ쪟", "?ㅼ젙 媛깆떊 ?ㅽ뙣: $_", [System.Windows.Forms.ToolTipIcon]::Error)
     }
 }
 
@@ -1203,19 +1203,19 @@ $notifyIcon.Visible = $true
 
 $contextMenu = New-Object System.Windows.Forms.ContextMenuStrip
 
-$menuOpen = $contextMenu.Items.Add("설정 파일 열기")
+$menuOpen = $contextMenu.Items.Add("?ㅼ젙 ?뚯씪 ?닿린")
 $menuOpen.add_Click({
     Start-Process -FilePath $ConfigPath
 })
 
-$menuReload = $contextMenu.Items.Add("설정 다시 불러오기")
+$menuReload = $contextMenu.Items.Add("?ㅼ젙 ?ㅼ떆 遺덈윭?ㅺ린")
 $menuReload.add_Click({
     Reload-Settings
 })
 
 $contextMenu.Items.Add("-") | Out-Null
 
-$menuExit = $contextMenu.Items.Add("종료")
+$menuExit = $contextMenu.Items.Add("醫낅즺")
 $menuExit.add_Click({
     [System.Windows.Forms.Application]::Exit()
 })

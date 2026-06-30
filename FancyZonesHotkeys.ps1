@@ -1149,12 +1149,21 @@ if ($PreviewHotkey) {
 $window = New-Object HotkeyWindow
 $window.CreateControl()
 
-$registeredHotkeys = New-Object System.Collections.Generic.List[int]
-$presetMap = @{}
+$script:registeredHotkeys = New-Object System.Collections.Generic.List[int]
+$script:presetMap = @{}
+$script:targetMap = $targetMap
+$script:config = $config
 
-try {
+function Register-AllHotkeys {
+    # Unregister existing
+    foreach ($id in $script:registeredHotkeys) {
+        [NativeMethods]::UnregisterHotKey($window.Handle, $id) | Out-Null
+    }
+    $script:registeredHotkeys.Clear()
+    $script:presetMap.Clear()
+
     $nextId = 1
-    foreach ($preset in $Config.presets) {
+    foreach ($preset in $script:config.presets) {
         $definition = Get-HotkeyDefinition -Hotkey $preset.hotkey
         $registered = [NativeMethods]::RegisterHotKey(
             $window.Handle,
@@ -1164,37 +1173,92 @@ try {
         )
 
         if (-not $registered) {
-            throw "Failed to register hotkey '$($preset.hotkey)'. Another app may already be using it."
+            Write-Warning "Failed to register hotkey '$($preset.hotkey)'. Another app may already be using it."
+        } else {
+            $script:registeredHotkeys.Add($nextId) | Out-Null
+            $script:presetMap[$nextId] = $preset
         }
-
-        $registeredHotkeys.Add($nextId) | Out-Null
-        $presetMap[$nextId] = $preset
         $nextId++
     }
+}
 
-    $window.add_HotkeyPressed({
-        param($id)
+function Reload-Settings {
+    try {
+        $newConfig = Get-Config -Path $ConfigPath
+        $newTargetMap = Get-TargetMap -Config $newConfig
+        Test-Config -Config $newConfig -TargetMap $newTargetMap
+        
+        $script:config = $newConfig
+        $script:targetMap = $newTargetMap
+        
+        Register-AllHotkeys
+        $notifyIcon.ShowBalloonTip(3000, "FancyZonesHotkeys", "설정이 성공적으로 갱신되었습니다.", [System.Windows.Forms.ToolTipIcon]::Info)
+    } catch {
+        $notifyIcon.ShowBalloonTip(5000, "FancyZonesHotkeys 오류", "설정 갱신 실패: $_", [System.Windows.Forms.ToolTipIcon]::Error)
+    }
+}
 
-        try {
-            $currentFancyZonesData = Get-FancyZonesData
-            $actionDefinition = Resolve-ActionDefinition -Preset $presetMap[$id] -TargetMap $targetMap
-            Invoke-ActionDefinition -ActionDefinition $actionDefinition -FancyZonesData $currentFancyZonesData
-        }
-        catch {
-            Write-Warning $_
-        }
-    })
+$window.add_HotkeyPressed({
+    param($id)
 
-    Write-Host 'FancyZones hotkey bridge is running.'
+    try {
+        $currentFancyZonesData = Get-FancyZonesData
+        $actionDefinition = Resolve-ActionDefinition -Preset $script:presetMap[$id] -TargetMap $script:targetMap
+        Invoke-ActionDefinition -ActionDefinition $actionDefinition -FancyZonesData $currentFancyZonesData | Out-Null
+    }
+    catch {
+        # Suppress errors to prevent message boxes during background hotkey presses
+    }
+})
+
+$notifyIcon = New-Object System.Windows.Forms.NotifyIcon
+$notifyIcon.Icon = [System.Drawing.SystemIcons]::Application
+$notifyIcon.Text = "FancyZonesHotkeys"
+$notifyIcon.Visible = $true
+
+$contextMenu = New-Object System.Windows.Forms.ContextMenuStrip
+
+$menuOpen = $contextMenu.Items.Add("설정 파일 열기")
+$menuOpen.add_Click({
+    Start-Process -FilePath $ConfigPath
+})
+
+$menuReload = $contextMenu.Items.Add("설정 다시 불러오기")
+$menuReload.add_Click({
+    Reload-Settings
+})
+
+$contextMenu.Items.Add("-") | Out-Null
+
+$menuExit = $contextMenu.Items.Add("종료")
+$menuExit.add_Click({
+    [System.Windows.Forms.Application]::Exit()
+})
+
+$notifyIcon.ContextMenuStrip = $contextMenu
+
+$notifyIcon.add_DoubleClick({
+    Start-Process -FilePath $ConfigPath
+})
+
+try {
+    Register-AllHotkeys
+    
+    Write-Host 'FancyZones hotkey bridge is running with System Tray.'
     Write-Host "Config: $ConfigPath"
-    Write-Host 'Press Ctrl+C in this console to stop it.'
-
-    [System.Windows.Forms.Application]::Run($window)
+    
+    [System.Windows.Forms.Application]::Run()
 }
 finally {
-    foreach ($id in $registeredHotkeys) {
+    foreach ($id in $script:registeredHotkeys) {
         [NativeMethods]::UnregisterHotKey($window.Handle, $id) | Out-Null
     }
-
-    $window.Dispose()
+    
+    if ($notifyIcon) {
+        $notifyIcon.Visible = $false
+        $notifyIcon.Dispose()
+    }
+    if ($window) {
+        $window.Dispose()
+    }
 }

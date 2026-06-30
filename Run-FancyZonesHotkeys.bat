@@ -1,2 +1,2 @@
 @echo off
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0FancyZonesHotkeys.ps1"
+powershell -WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File "%~dp0FancyZonesHotkeys.ps1"

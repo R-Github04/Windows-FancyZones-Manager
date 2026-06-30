@@ -83,8 +83,8 @@ $ps1Path = Join-Path $ScriptRoot "FancyZonesHotkeys.ps1"
 Copy-Item -Path $ps1Path -Destination $portableDir -Force
 
 Write-Host "Packaging Portable version..."
-if (Test-Path (Join-Path $ScriptRoot "presets.json")) {
-    Copy-Item -Path (Join-Path $ScriptRoot "presets.json") -Destination $portableDir
+if (Test-Path (Join-Path $ScriptRoot "presets.yaml")) {
+    Copy-Item -Path (Join-Path $ScriptRoot "presets.yaml") -Destination $portableDir
 }
 Copy-Item -Path (Join-Path $ScriptRoot "Register-Startup.bat") -Destination $portableDir
 Copy-Item -Path (Join-Path $ScriptRoot "Unregister-Startup.bat") -Destination $portableDir

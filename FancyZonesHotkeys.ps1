@@ -10,9 +10,17 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+if (-not (Get-Module -ListAvailable -Name powershell-yaml)) {
+    Write-Host "Installing powershell-yaml module..."
+    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
+    Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted -ErrorAction SilentlyContinue
+    Install-Module -Name powershell-yaml -Scope CurrentUser -Force -AllowClobber
+}
+Import-Module powershell-yaml
+
 if (-not $ConfigPath) {
     $scriptRoot = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
-    $ConfigPath = Join-Path $scriptRoot 'presets.json'
+    $ConfigPath = Join-Path $scriptRoot 'presets.yaml'
 }
 
 Add-Type -AssemblyName System.Windows.Forms
@@ -161,78 +169,53 @@ function New-SampleConfig {
     param([Parameter(Mandatory)] [string]$Path)
 
     $sample = @'
-{
-  "targets": [
-    {
-      "id": "left-main",
-      "action": "zone",
-      "monitor": 1,
-      "layout": "@applied",
-      "zone": 1
-    },
-    {
-      "id": "center-main",
-      "action": "zone",
-      "monitor": 1,
-      "layout": "@applied",
-      "zone": 2
-    },
-    {
-      "id": "quad-top-left",
-      "action": "zone",
-      "monitor": 2,
-      "layout": "@applied",
-      "zone": 1
-    }
-  ],
-  "presets": [
-    {
-      "hotkey": "Alt+1",
-      "action": "zone",
-      "monitor": "active",
-      "layout": "@applied",
-      "zone": 1
-    },
-    {
-      "hotkey": "Alt+2",
-      "action": "zone",
-      "monitor": "active",
-      "layout": "@applied",
-      "zone": 2
-    },
-    {
-      "hotkey": "Alt+3",
-      "action": "zone",
-      "monitor": "active",
-      "layout": "@applied",
-      "zone": 3
-    },
-    {
-      "hotkey": "Alt+Shift+Right",
-      "action": "monitor",
-      "monitor": "next",
-      "placement": "preserve-relative"
-    },
-    {
-      "hotkey": "Alt+Shift+Left",
-      "action": "monitor",
-      "monitor": "previous",
-      "placement": "preserve-relative"
-    },
-    {
-      "hotkey": "Ctrl+Alt+1",
-      "target": "left-main"
-    },
-    {
-      "hotkey": "Ctrl+Alt+2",
-      "target": "center-main"
-    },
-    {
-      "hotkey": "Ctrl+Alt+Q",
-      "target": "quad-top-left"
-    }
-  ]
-}
+targets:
+  - id: "left-main"
+    action: "zone"
+    monitor: 1
+    layout: "@applied"
+    zone: 1
+  - id: "center-main"
+    action: "zone"
+    monitor: 1
+    layout: "@applied"
+    zone: 2
+  - id: "quad-top-left"
+    action: "zone"
+    monitor: 2
+    layout: "@applied"
+    zone: 1
+
+presets:
+  - hotkey: "Alt+1"
+    action: "zone"
+    monitor: "active"
+    layout: "@applied"
+    zone: 1
+  - hotkey: "Alt+2"
+    action: "zone"
+    monitor: "active"
+    layout: "@applied"
+    zone: 2
+  - hotkey: "Alt+3"
+    action: "zone"
+    monitor: "active"
+    layout: "@applied"
+    zone: 3
+  - hotkey: "Alt+Shift+Right"
+    action: "monitor"
+    monitor: "next"
+    placement: "preserve-relative"
+  - hotkey: "Alt+Shift+Left"
+    action: "monitor"
+    monitor: "previous"
+    placement: "preserve-relative"
+  - hotkey: "Ctrl+Alt+1"
+    target: "left-main"
+  - hotkey: "Ctrl+Alt+2"
+    target: "center-main"
+  - hotkey: "Ctrl+Alt+Q"
+    target: "quad-top-left"
 '@
 
     Set-Content -LiteralPath $Path -Value $sample -Encoding UTF8
@@ -1012,7 +995,9 @@ function Get-Config {
         New-SampleConfig -Path $Path
     }
 
-    $config = Read-JsonFile -Path $Path
+    $rawContent = Get-Content -LiteralPath $Path -Raw
+    $config = ConvertFrom-Yaml $rawContent
+    
     if (-not $config.presets -or $config.presets.Count -eq 0) {
         throw "No presets were found in $Path"
     }

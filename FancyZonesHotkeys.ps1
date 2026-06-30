@@ -1,10 +1,12 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
     [string]$ConfigPath,
     [switch]$ListLayouts,
     [switch]$ListMonitors,
     [switch]$ValidateConfig,
-    [string]$PreviewHotkey
+    [string]$PreviewHotkey,
+    [ValidateSet('en','ko')]
+    [string]$Language = 'en'
 )
 
 Set-StrictMode -Version Latest
@@ -25,6 +27,26 @@ if (-not $ConfigPath) {
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+
+$UIStrings = @{
+    en = @{
+        MenuOpenConfig   = "Open Config File"
+        MenuReload       = "Reload Settings"
+        MenuExit         = "Exit"
+        ReloadSuccess    = "Settings reloaded successfully."
+        ReloadErrorTitle = "FancyZonesHotkeys Error"
+        ReloadErrorMsg   = "Settings reload failed: {0}"
+    }
+    ko = @{
+        MenuOpenConfig   = "설정 파일 열기"
+        MenuReload       = "설정 다시 불러오기"
+        MenuExit         = "종료"
+        ReloadSuccess    = "설정이 성공적으로 갱신되었습니다."
+        ReloadErrorTitle = "FancyZonesHotkeys 오류"
+        ReloadErrorMsg   = "설정 갱신 실패: {0}"
+    }
+}
+$L = $UIStrings[$Language]
 
 $interopSource = @'
 using System;
@@ -1177,9 +1199,9 @@ function Reload-Settings {
         $script:targetMap = $newTargetMap
         
         Register-AllHotkeys
-        $notifyIcon.ShowBalloonTip(3000, "FancyZonesHotkeys", "?ㅼ젙???깃났?곸쑝濡?媛깆떊?섏뿀?듬땲??", [System.Windows.Forms.ToolTipIcon]::Info)
+        $notifyIcon.ShowBalloonTip(3000, "FancyZonesHotkeys", $L.ReloadSuccess, [System.Windows.Forms.ToolTipIcon]::Info)
     } catch {
-        $notifyIcon.ShowBalloonTip(5000, "FancyZonesHotkeys ?ㅻ쪟", "?ㅼ젙 媛깆떊 ?ㅽ뙣: $_", [System.Windows.Forms.ToolTipIcon]::Error)
+        $notifyIcon.ShowBalloonTip(5000, $L.ReloadErrorTitle, ($L.ReloadErrorMsg -f $_), [System.Windows.Forms.ToolTipIcon]::Error)
     }
 }
 
@@ -1203,19 +1225,19 @@ $notifyIcon.Visible = $true
 
 $contextMenu = New-Object System.Windows.Forms.ContextMenuStrip
 
-$menuOpen = $contextMenu.Items.Add("?ㅼ젙 ?뚯씪 ?닿린")
+$menuOpen = $contextMenu.Items.Add($L.MenuOpenConfig)
 $menuOpen.add_Click({
     Start-Process -FilePath $ConfigPath
 })
 
-$menuReload = $contextMenu.Items.Add("?ㅼ젙 ?ㅼ떆 遺덈윭?ㅺ린")
+$menuReload = $contextMenu.Items.Add($L.MenuReload)
 $menuReload.add_Click({
     Reload-Settings
 })
 
 $contextMenu.Items.Add("-") | Out-Null
 
-$menuExit = $contextMenu.Items.Add("醫낅즺")
+$menuExit = $contextMenu.Items.Add($L.MenuExit)
 $menuExit.add_Click({
     [System.Windows.Forms.Application]::Exit()
 })

@@ -57,7 +57,7 @@ The GIF should show one clear story:
 
 1. Install Microsoft PowerToys and set up FancyZones custom layouts for your monitors.
 2. Download the latest release ZIP. **Before extracting**, right-click the `.zip` file, select **Properties**, check **Unblock** at the bottom, and click Apply. (This prevents Windows from blocking the scripts inside).
-3. Extract the ZIP anywhere, and edit `presets.json` to configure your hotkeys.
+3. Extract the ZIP anywhere, and edit `presets.yaml` to configure your hotkeys.
 4. Run `FancyZonesHotkeys.exe` (or `Run-FancyZonesHotkeys.bat`), then focus a window and press your hotkeys.
 
 > **Note on Windows SmartScreen**: Because this utility is not digitally signed with an expensive certificate, Windows may show a blue "Windows protected your PC" screen on first run. Click **More info** and then **Run anyway**.
@@ -70,7 +70,7 @@ The simplest distribution format for this project is a portable ZIP with these f
 
 - `FancyZonesHotkeys.ps1`
 - `Run-FancyZonesHotkeys.bat`
-- `presets.json`
+- `presets.yaml`
 - `README.md`
 - `QUICKSTART.txt`
 
@@ -84,75 +84,56 @@ That gives users a very clear path:
 
 1. Download ZIP
 2. Extract ZIP
-3. Edit `presets.json`
+3. Edit `presets.yaml`
 4. Double-click `Run-FancyZonesHotkeys.bat`
 
 ## Example config
 
-`presets.json` has two sections:
+`presets.yaml` has two sections:
 
 - `targets`: reusable named destinations
 - `presets`: hotkeys that either define an action directly or point to a target
 
-```json
-{
-  "targets": [
-    {
-      "id": "left-main",
-      "action": "zone",
-      "monitor": 1,
-      "layout": "@applied",
-      "zone": 1
-    },
-    {
-      "id": "center-main",
-      "action": "zone",
-      "monitor": 1,
-      "layout": "@applied",
-      "zone": 2
-    },
-    {
-      "id": "quad-top-left",
-      "action": "zone",
-      "monitor": 2,
-      "layout": "@applied",
-      "zone": 1
-    }
-  ],
-  "presets": [
-    {
-      "hotkey": "Alt+1",
-      "action": "zone",
-      "monitor": "active",
-      "layout": "@applied",
-      "zone": 1
-    },
-    {
-      "hotkey": "Alt+2",
-      "action": "zone",
-      "monitor": "active",
-      "layout": "@applied",
-      "zone": 2
-    },
-    {
-      "hotkey": "Alt+3",
-      "action": "zone",
-      "monitor": "active",
-      "layout": "@applied",
-      "zone": 3
-    },
-    {
-      "hotkey": "Alt+Shift+Right",
-      "action": "monitor",
-      "monitor": "next",
-      "placement": "preserve-relative"
-    },
-    {
-      "hotkey": "Ctrl+Alt+1",
-      "target": "left-main"
-    }
-  ]
-}
+```yaml
+targets:
+  - id: "left-main"
+    action: "zone"
+    monitor: 1
+    layout: "@applied"
+    zone: 1
+  - id: "center-main"
+    action: "zone"
+    monitor: 1
+    layout: "@applied"
+    zone: 2
+  - id: "quad-top-left"
+    action: "zone"
+    monitor: 2
+    layout: "@applied"
+    zone: 1
+
+presets:
+  - hotkey: "Alt+1"
+    action: "zone"
+    monitor: "active"
+    layout: "@applied"
+    zone: 1
+  - hotkey: "Alt+2"
+    action: "zone"
+    monitor: "active"
+    layout: "@applied"
+    zone: 2
+  - hotkey: "Alt+3"
+    action: "zone"
+    monitor: "active"
+    layout: "@applied"
+    zone: 3
+  - hotkey: "Alt+Shift+Right"
+    action: "monitor"
+    monitor: "next"
+    placement: "preserve-relative"
+  - hotkey: "Ctrl+Alt+1"
+    target: "left-main"
 ```
 
 ## Actions

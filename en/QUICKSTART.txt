@@ -1,7 +1,7 @@
 # FancyZonesHotkeys Quick Start
 
 1. Install Microsoft PowerToys and configure FancyZones layouts.
-2. Edit `presets.json` to define your hotkeys and target zones/monitors.
+2. Edit `presets.yaml` to define your hotkeys and target zones/monitors.
 3. Run `FancyZonesHotkeys.exe` (or `Run-FancyZonesHotkeys.bat`).
 
 ## Troubleshooting

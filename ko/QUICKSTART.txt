@@ -1,0 +1,19 @@
+# FancyZonesHotkeys 빠른 시작
+
+1. Microsoft PowerToys를 설치하고 FancyZones 레이아웃을 설정합니다.
+2. `presets.yaml` 파일을 편집하여 단축키와 대상 화면/영역을 정의합니다.
+3. `FancyZonesHotkeys.exe` (또는 `Run-FancyZonesHotkeys_kor.bat`)를 실행합니다.
+
+## 문제 해결
+
+### 파란색 "Windows의 PC 보호" 화면 (SmartScreen)
+이 유틸리티는 값비싼 인증서로 서명되지 않은 오픈 소스 도구이므로 처음 실행 시 Windows SmartScreen 경고가 표시될 수 있습니다.
+**해결 방법**: "추가 정보" -> "실행"을 클릭합니다.
+
+### 프로그램이 전혀 실행되지 않거나 사라짐 (MOTW)
+인터넷에서 다운로드한 ZIP 파일 내부의 스크립트 파일을 Windows가 차단할 수 있습니다.
+**해결 방법**: ZIP 파일을 압축 해제하기 전에, `.zip` 파일을 마우스 오른쪽 버튼으로 클릭 -> 속성 -> 맨 아래의 "차단 해제" 확인 -> 적용을 누릅니다. 그런 다음 압축을 풉니다.
+
+### 시작 프로그램 등록
+Windows 시작 시 단축키 프로그램이 자동으로 실행되도록 하려면 `Register-Startup_kor.bat`를 실행하세요.
+제거하려면 `Unregister-Startup_kor.bat`를 실행하세요.

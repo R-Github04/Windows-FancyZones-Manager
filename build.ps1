@@ -57,8 +57,9 @@ namespace FancyZonesHotkeysLauncher
                 
                 if (!File.Exists(scriptPath)) return;
 
+                string psArgs = string.Join(" ", args);
                 ProcessStartInfo psi = new ProcessStartInfo("powershell.exe");
-                psi.Arguments = string.Format("-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"{0}\"", scriptPath);
+                psi.Arguments = string.Format("-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"{0}\" {1}", scriptPath, psArgs);
                 psi.CreateNoWindow = true;
                 psi.UseShellExecute = false;
                 psi.WindowStyle = ProcessWindowStyle.Hidden;
@@ -88,9 +89,18 @@ Write-Host "Packaging Portable version..."
 if (Test-Path (Join-Path $ScriptRoot "presets.yaml")) {
     Copy-Item -Path (Join-Path $ScriptRoot "presets.yaml") -Destination $portableDir
 }
-Copy-Item -Path (Join-Path $ScriptRoot "Register-Startup.bat") -Destination $portableDir
-Copy-Item -Path (Join-Path $ScriptRoot "Unregister-Startup.bat") -Destination $portableDir
-Copy-Item -Path (Join-Path $ScriptRoot "QUICKSTART.txt") -Destination $portableDir -ErrorAction SilentlyContinue
+New-Item -ItemType Directory -Path (Join-Path $portableDir "en") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $portableDir "ko") -Force | Out-Null
+
+Copy-Item -Path (Join-Path $ScriptRoot "en\Register-Startup.bat") -Destination (Join-Path $portableDir "en")
+Copy-Item -Path (Join-Path $ScriptRoot "en\Unregister-Startup.bat") -Destination (Join-Path $portableDir "en")
+Copy-Item -Path (Join-Path $ScriptRoot "en\Run-FancyZonesHotkeys.bat") -Destination (Join-Path $portableDir "en") -ErrorAction SilentlyContinue
+Copy-Item -Path (Join-Path $ScriptRoot "en\QUICKSTART.txt") -Destination (Join-Path $portableDir "en") -ErrorAction SilentlyContinue
+
+Copy-Item -Path (Join-Path $ScriptRoot "ko\Register-Startup.bat") -Destination (Join-Path $portableDir "ko") -ErrorAction SilentlyContinue
+Copy-Item -Path (Join-Path $ScriptRoot "ko\Unregister-Startup.bat") -Destination (Join-Path $portableDir "ko") -ErrorAction SilentlyContinue
+Copy-Item -Path (Join-Path $ScriptRoot "ko\Run-FancyZonesHotkeys.bat") -Destination (Join-Path $portableDir "ko") -ErrorAction SilentlyContinue
+Copy-Item -Path (Join-Path $ScriptRoot "ko\QUICKSTART.txt") -Destination (Join-Path $portableDir "ko") -ErrorAction SilentlyContinue
 
 $zipPath = Join-Path $distDir "FancyZonesHotkeys_Portable.zip"
 Compress-Archive -Path "$portableDir\*" -DestinationPath $zipPath -Force

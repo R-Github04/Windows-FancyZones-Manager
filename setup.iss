@@ -1,6 +1,6 @@
 [Setup]
 AppName=FancyZonesHotkeys
-AppVersion=1.0.0
+AppVersion=1.1.0
 AppPublisher=FancyZonesHotkeys
 DefaultDirName={autopf}\FancyZonesHotkeys
 DefaultGroupName=FancyZonesHotkeys

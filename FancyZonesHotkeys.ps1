@@ -67,7 +67,6 @@ public static class NativeMethods
 
     public const uint MONITOR_DEFAULTTONEAREST = 0x00000002;
     public const int SW_RESTORE = 9;
-    public const int SW_MAXIMIZE = 3;
     public const int WM_HOTKEY = 0x0312;
 
     [StructLayout(LayoutKind.Sequential)]
@@ -813,8 +812,7 @@ function Invoke-WindowMove {
         [Parameter(Mandatory)] [int]$X,
         [Parameter(Mandatory)] [int]$Y,
         [Parameter(Mandatory)] [int]$Width,
-        [Parameter(Mandatory)] [int]$Height,
-        [switch]$Maximize
+        [Parameter(Mandatory)] [int]$Height
     )
 
     if ([NativeMethods]::IsIconic($WindowHandle) -or [NativeMethods]::IsZoomed($WindowHandle)) {
@@ -834,10 +832,6 @@ function Invoke-WindowMove {
 
     if (-not $result) {
         throw 'SetWindowPos failed.'
-    }
-
-    if ($Maximize) {
-        [NativeMethods]::ShowWindow($WindowHandle, [NativeMethods]::SW_MAXIMIZE) | Out-Null
     }
 }
 
@@ -946,9 +940,7 @@ function Invoke-ActionDefinition {
             $windowRect = Get-WindowRectObject -WindowHandle $windowHandle
             $placement = if ($ActionDefinition.placement) { [string]$ActionDefinition.placement } else { 'preserve-relative' }
             $targetRect = Get-MonitorPlacementRect -SourceMonitor $sourceMonitor -TargetMonitor $targetMonitor -WindowRect $windowRect -Placement $placement
-            
-            $maximize = ($placement.ToLowerInvariant() -eq 'maximize')
-            Invoke-WindowMove -WindowHandle $windowHandle -X $targetRect.X -Y $targetRect.Y -Width $targetRect.Width -Height $targetRect.Height -Maximize:$maximize
+            Invoke-WindowMove -WindowHandle $windowHandle -X $targetRect.X -Y $targetRect.Y -Width $targetRect.Width -Height $targetRect.Height
 
             Write-Host ("[{0}] -> monitor {1} ({2}) using {3} ({4}, {5}, {6}x{7})" -f
                 $ActionDefinition.hotkey,

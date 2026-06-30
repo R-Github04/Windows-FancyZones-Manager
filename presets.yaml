@@ -1,4 +1,4 @@
-﻿targets:
+targets:
 - id: left-main
   action: zone
   monitor: 1
